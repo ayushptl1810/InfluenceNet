@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Past Campaigns
+{% endblock %}
+
+{% block content %}
+{% if session['user_role'] == 'sponsor' %}
+    <h1 class="d-flex justify-content-center align-items-center mb-4">Past Campaigns</h1>
+    <table class="table custom-table">
+        <thead>
+            <tr>
+                <th>Campaign Name</th>
+                <th>Description</th>
+                <th>End Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in completed_campaigns %}
+                <tr>
+                    <td>{{ campaign.campaign_name }}</td>
+                    <td>{{ campaign.description }}</td>
+                    <td>{{ campaign.end_date.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#campaignModal{{ campaign.id }}">
+                            View
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade" id="campaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="campaignModalLabel{{ campaign.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="campaignModalLabel{{ campaign.id }}">{{ campaign.campaign_name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Description:</strong> {{ campaign.description }}</p>
+                                <p><strong>Goals:</strong> {{ campaign.goals }}</p>
+                                <p><strong>Start Date:</strong> {{ campaign.start_date.strftime('%d/%m/%Y') }}</p>
+                                <p><strong>End Date:</strong> {{ campaign.end_date.strftime('%d/%m/%Y') }}</p>
+                                <p><strong>Budget:</strong> {{ campaign.budget }}</p>
+                                <p><strong>Niche:</strong> {{ campaign.niche }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </tbody>
+    </table>
+{% elif session['user_role'] == 'influencer' %}
+    <h1 class="d-flex justify-content-center align-items-center mb-4">Completed Ad Requests</h1>
+    <table class="table custom-table">
+        <thead>
+            <tr>
+                <th>Campaign Name</th>
+                <th>Description</th>
+                <th>Completed Date</th>
+                <th>Money Earned</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ad_request in completed_ad_requests %}
+                <tr>
+                    <td>{{ ad_request.campaign.campaign_name }}</td>
+                    <td>{{ ad_request.campaign.description }}</td>
+                    <td>{{ ad_request.completed_date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ ad_request.payment_amount }}</td>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

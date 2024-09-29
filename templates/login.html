@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Login Page
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 d-flex justify-content-center align-items-center">
+            <img src="{{ url_for('static', filename='Logo1.jpeg') }}" width="575" height="400">
+        </div>
+        <div class="col-md-4">
+            <form method = "post" class="custom-form">
+                <h1 class="d-flex justify-content-center align-items-center">Login</h1>
+                <div class="mb-3">
+                    <input type="text" name="username" placeholder="Username" class="form-control" >
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="password" placeholder="Password" class="form-control" >
+                </div>
+                <div>
+                    <input type="submit" value="Login" class="btn btn-primary">
+                    <input type="reset" value="Reset" class="btn btn-primary">
+                </div>     
+                <div class="mb-3 pt-2">
+                    <p>Don't have an account?</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('register_influencer') }}">Register as Influencer</a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('register_sponsor') }}">Register as Sponsor</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

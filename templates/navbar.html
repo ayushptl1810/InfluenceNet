@@ -1,0 +1,57 @@
+{% if 'user_id' in session %}
+<nav class="navbar bg-custom fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='Logo2.png') }}" width="300" height="50">
+        </a>
+            <ul class="navbar-nav ml-auto d-flex flex-row">
+                    {% if session['user_role'] == 'sponsor' %}
+                        <li class="nav-item mx-4">
+                                <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('completed_campaigns') }}">Past Campaigns</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('search_influencer') }}">Search</a>
+                        </li>
+                    {% elif session['user_role'] == 'influencer' %}
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('profile_influencer') }}">Profile</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('completed_campaigns') }}">Completed Ad Requests</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('search_campaign') }}">Search</a>
+                        </li>
+                    {% elif session['user_role'] == 'admin' %}
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ url_for('flagged_user') }}">Flagged Users</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item mx-4">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+            </ul>
+    </div>
+</nav>
+
+{% endif %}
+<style>
+    .bg-custom{
+        background:#000000;
+        }
+    .nav-link {
+        color: #c7ae6a; 
+    }
+    .nav-link:hover {
+        color:#c9bd9c
+    }
+</style>

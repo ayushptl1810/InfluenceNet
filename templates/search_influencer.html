@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block content %}
+
+<form method="post" class="custom-form">
+    <div class="row">
+        <div class="col-lg-8">
+            <input type="text" name="username" placeholder="Search..." class="form-control">
+            <div id="influencer-filters" class="pt-2">
+                <label for="category">Choose a category:</label>
+                <select id="category" name="category" class="custom-select">
+                    <option value="" disabled selected>Select</option>
+                    {% for value in categoryList %}
+                        <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <div class="slider-container pt-3">
+                    <label for="reach">Reach</label>
+                    <input type="range" id="numberSlider" min="0" max="50000" value="{{ reach }}" step="500" oninput="updateNumberPicker('reachSlider', this.value)">
+                    <input type="number" id="reachSlider" name="reach" value="{{ reach }}" min="0" max="50000" step="500">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 d-flex justify-content-center align-items-center">
+            <h2>Search Influencer</h2>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
+
+{% if results %}
+<div class="row pt-5">
+    <div>
+        <table class="table custom-table table-hover">
+        <thead>
+            <tr>
+                <th>Influencer Username</th>
+                <th>Niche</th>
+                <th>Reach</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.username }}</td>
+                <td>{{ result.niche }}</td>
+                <td>{{ result.reach }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createAdRequestModal" data-influencer_id="{{ result.id }}">Send Ad Request</button>
+                </td>
+            </tr>
+                {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="modal fade" id="createAdRequestModal" tabindex="-1" aria-labelledby="createAdRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="createAdRequestModalLabel">Create Ad Request</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form method="post" action="{{ url_for('create_ad_request_post') }}">
+                  <div>            
+                      <input type="hidden" name="influencer_id" id = "influencer_id"> 
+                        <label for="campaign_id">Campaign</label>
+                        <select id="campaign_id" name="campaign_id" class="form-select">
+                            {% for campaign in campaigns %}
+                            <option value="{{ campaign.id }}">{{ campaign.campaign_name }}</option>
+                            {% endfor %}
+                        </select>
+                  </div>  
+                  <div class="mb-3">
+                      <label for="message">Message</label>
+                      <textarea name="message" class="form-control"></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                      <label for="requirements">Requirements</label>
+                      <textarea name="requirements" class="form-control"></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                      <label for="payment_amount">Payment amount</label>
+                      <input type="range" id="numberSlider" min="0" max="50000" value="{{ budget }}" step="500" oninput="updateNumberPicker('paymentSlider', this.value)" style="background-color: #333;">
+                      <input type="number" id="paymentSlider" name="payment_amount" value="{{ budget }}" min="0" max="50000" step="500">
+                  </div>
+
+                  <div class="d-grid gap-2">
+                      <input type="submit" value="Save" class="btn btn-primary">
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    setupModalEvent('createAdRequestModal', ['influencer_id']);
+</script> 
+{% endblock %}

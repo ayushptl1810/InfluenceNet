@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card card-header">
+                Total Users
+            </div>
+            <div class="card card-body">
+                {{ user_count }}
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-header">
+                Total Sponsors
+            </div>
+            <div class="card card-body">
+                {{ sponsor_count }}
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-header">
+                Total Influencers
+            </div>
+            <div class="card card-body">
+                {{ influencer_count }}
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-header">
+                Active Campaigns
+            </div>
+            <div class="card card-body">
+                {{ active_campaign_count }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-12 d-flex justify-content-center align-items-center p-3">
+            <img src="data:image/png;base64,{{ graph_base64 }}" alt="Admin Dashboard Statistics">
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block content %}
+
+<form method="post" class="custom-form">
+    <div class="row">
+        <div class="col-lg-8">
+            <div id="sponsor-filters" class="pt-2">
+                <label for="niche">Choose a niche:</label>
+                <select id="niche" name="niche" class="custom-select">
+                    <option value="" disabled selected>Select</option>
+                    {% for value in nicheList %}
+                        <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <div class="slider-container pt-3">
+                    <label for="budget">Budget</label>
+                    <input type="range" id="numberSlider" min="0" max="50000" value="{{ budget }}" step="500" oninput="updateNumberPicker('budgetSlider', this.value)">
+                    <input type="number" id="budgetSlider" name="budget" value="{{ budget }}" min="0" max="50000" step="500">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 d-flex justify-content-center align-items-center">
+            <h2>Search Campaigns</h2>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
+{% if campaigns %}
+<div class="row pt-5">
+    
+    <div>
+        <table class="table custom-table">
+        <thead>
+            <tr>
+                <th>Campaign Name</th>
+                <th>Description</th>
+                <th>Budget</th>
+                <th>Ending Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in campaigns %}
+            <tr>
+                <td>{{ campaign.campaign_name }}</td>
+                <td>{{ campaign.description }}</td>
+                <td>{{ campaign.budget }}</td>
+                <td>{{ campaign.end_date.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createAdRequestModal" data-campaign_id="{{ campaign.id }}">Send Ad Request</button>
+                </td>
+            </tr>
+                {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="createAdRequestModal" tabindex="-1" aria-labelledby="createAdRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAdRequestModalLabel">Create Ad Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('create_ad_request_post') }}">
+                    <div>            
+                        <input type="hidden" name="campaign_id" id="campaign_id"> 
+                    </div>
+                    <div class="mb-3">
+                        <label for="message">Message</label>
+                        <textarea name="message" placeholder="Message" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="requirements">Requirements</label>
+                        <textarea name="requirements" placeholder="Requirements" class="form-control"></textarea>
+                    </div>
+  
+                    <div class="mb-3">
+                        <label for="payment_amount">Payment amount</label>
+                        <input type="range" id="numberSlider" min="0" max="50000" value="{{ budget }}" step="500" oninput="updateNumberPicker('paymentSlider', this.value)" style="background-color: #333;">
+                        <input type="number" id="paymentSlider" name="payment_amount" value="{{ budget }}" min="0" max="50000" step="500">
+                    </div>
+  
+                    <div class="d-grid gap-2">
+                        <input type="submit" value="Save" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+{% endif %}
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    setupModalEvent('createAdRequestModal', ['campaign_id']);
+</script> 
+{% endblock %}

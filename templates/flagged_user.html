@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block content %}
+
+<h1 class="d-flex justify-content-center align-items-center mb-3">Flagged Users</h1>
+<table class="table custom-table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Reason</th>
+            <th>Flagged By</th>
+            <th>Flagged At</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for flag in flagged_users %}
+        <tr>
+            <td>{{ flag.flagged_username }}</td>
+            <td>{{ flag.flag_reason }}</td>
+            <td>{{ flag.flagged_by_username }}</td>
+            <td>{{ flag.flagged_at }}</td>
+            <td>
+                <a href = "{{ url_for('unflag', id = flag.flagged_user_id) }}" class="btn btn-success btn-sm">Unflag</a>
+            </td>
+            <td>
+                <a href = "{{ url_for('delete_user', id = flag.flagged_user_id) }}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

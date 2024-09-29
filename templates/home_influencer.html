@@ -1,0 +1,221 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <h1>Hello {{ user.username }}</h1>
+    <div class="d-flex justify-content-center align-items-center" >
+        <h2>Ongoing Campaigns</h2>
+    </div>
+    <div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Campaign Name</th>
+                    <th>Description</th>
+                    <th>Budget</th>
+                    <th>Ending date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campaign in campaigns %}
+                    <tr>
+                        <td>{{ campaign.campaign_name }}</td>
+                        <td>{{ campaign.description }}</td>
+                        <td>{{ campaign.ad_requests[0].payment_amount }}</td>
+                        <td>{{ campaign.end_date.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <a href = "{{ url_for('view_campaign', campaign_id = campaign.id) }}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-center align-items-center pt-5">
+        <h2>Ad Requests</h2>
+    </div>
+    <div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Campaign Name</th>
+                    <th>Description</th>
+                    <th>Offer Amount</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad_request in ad_requests %}
+                    <tr>
+                        <td>{{ ad_request.campaign.campaign_name }}</td>
+                        <td>{{ ad_request.campaign.description }}</td>
+                        <td>{{ ad_request.payment_amount }}</td>
+                        <td>
+                            <a href = "{{ url_for('view_ad_request', id = ad_request.id, campaign_id = ad_request.campaign_id) }}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                        <td>
+                            <a href = "{{ url_for('accept', id = ad_request.id) }}" class="btn btn-success btn-sm">Accept</a>
+                        </td>
+                        <td>
+                            <a href = "{{ url_for('reject', id = ad_request.id) }}" class="btn btn-danger btn-sm">Reject</a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renegotiateModal" data-ad_request_id_renegotiate="{{ ad_request.id }}">Renegotiate</button>
+                            {% if ad_request.campaign.sponsor_id not in flagged_user_ids %}
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#flagModal" data-sponsor_id="{{ ad_request.campaign.sponsor_id }}">Flag</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if ad_requests_influencer %}
+    <div class="d-flex justify-content-center align-items-center pt-5">
+        <h2>Pending Ad Requests</h2>
+    </div>
+    <div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Campaign Name</th>
+                    <th>Message</th>
+                    <th>Payment Amount</th>
+                    <th>Status</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad_request in ad_requests_influencer %}
+                <tr>
+                    <td>{{ ad_request.campaign.campaign_name }}</td>
+                    <td>{{ ad_request.message }}</td>
+                    <td>{{ ad_request.payment_amount }}</td>
+                    <td>{{ ad_request.status.name }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateAdRequestModal" data-ad_request_id_update="{{ ad_request.id }}">Update</button>
+                    </td>
+                    <td>
+                        <a href = "{{ url_for('delete_ad_request', ad_request_id = ad_request.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    <div class="modal fade" id="renegotiateModal" tabindex="-1" aria-labelledby="renegotiateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renegotiateModalLabel">Renegotiate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('renegotiate_post') }}" class="custom-form">
+                        <div>
+                            <input type="hidden" name="id" id="ad_request_id_renegotiate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message">Message</label>
+                            <textarea name="message" id="message" class="form-control"></textarea>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="requirements">Requirements</label>
+                            <textarea name="requirements" id="requirements" class="form-control"></textarea>
+                        </div>
+                        <div class="slider-container pt-3">
+                            <label for="payment_amount">Payment Amount</label>
+                            <input type="range" id="numberSlider" min="0" max="50000" value="0" step="500" oninput="updateNumberPicker('updatepaymentSlider', this.value)">
+                            <input type="number" id="updatepaymentSlider" name="payment_amount" value="0" min="0" max="50000" step="500" readonly>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="modal fade" id="flagModal" tabindex="-1" aria-labelledby="flagModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flagModalLabel">Flag User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('flagged') }}" class="custom-form">
+                        <div>
+                            <input type="hidden" name="sponsor_id" id="sponsor_id">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason">State your reason</label>
+                            <textarea name="reason" id="reason" class="form-control"></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="updateAdRequestModal" tabindex="-1" aria-labelledby="updateAdRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateAdRequestModalLabel">Update</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('update_ad_request') }}" class="custom-form">
+                        <div>
+                            <input type="hidden" name="ad_request_id" id="ad_request_id_update">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message">Message</label>
+                            <textarea name="message" id="message" class="form-control"></textarea>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="requirements">Requirements</label>
+                            <textarea name="requirements" id="requirements" class="form-control"></textarea>
+                        </div>
+                        <div class="slider-container pt-3">
+                            <label for="payment_amount">Payment Amount</label>
+                            <input type="range" id="numberSlider" min="0" max="50000" value="0" step="500" oninput="updateNumberPicker('paymentSlider', this.value)">
+                            <input type="number" id="paymentSlider" name="payment_amount" value="0" min="0" max="50000" step="500" readonly>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    setupModalEvent('renegotiateModal', ['ad_request_id_renegotiate']);
+    setupModalEvent('flagModal', ['sponsor_id']);
+    setupModalEvent('updateAdRequestModal', ['ad_request_id_update']);
+</script>         
+{% endblock %}
+

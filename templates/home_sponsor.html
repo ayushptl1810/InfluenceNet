@@ -1,0 +1,218 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <h1>Hello {{ user.username }}</h1>
+    <div class="d-flex justify-content-center align-items-center" >
+        <h2>Ongoing Campaigns</h2>
+    </div>
+    <div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Campaign Name</th>
+                    <th>Description</th>
+                    <th>Budget</th>
+                    <th>Starting Date</th>
+                    <th>Ending Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campaign in campaigns %}
+                    <tr>
+                        <td>{{ campaign.campaign_name }}</td>
+                        <td>{{ campaign.description }}</td>
+                        <td>{{ campaign.budget }}</td>
+                        <td>{{ campaign.start_date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ campaign.end_date.strftime('%d/%m/%Y') }} </td>
+                        <td>
+                            <a href = "{{ url_for('view_campaign', campaign_id = campaign.id) }}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="d-flex justify-content-center align-items-center pt-5" >
+        <h2>Ad Requests</h2>
+    </div>
+    <div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Influencer id</th>
+                    <th>Message</th>
+                    <th>Payment Amount</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad_request in ad_requests %}
+                    <tr>
+                        <td>{{ ad_request.influencer_id }}</td>
+                        <td>{{ ad_request.message }}</td>
+                        <td>{{ ad_request.payment_amount }}</td>
+                        <td>
+                            <a href = "{{ url_for('view_ad_request', id = ad_request.id, campaign_id = ad_request.campaign_id) }}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                        <td>
+                            <a href = "{{ url_for('accept', id = ad_request.id) }}" class="btn btn-success btn-sm">Accept</a>
+                        </td>
+                        <td>
+                            <a href = "{{ url_for('reject', id = ad_request.id) }}" class="btn btn-danger btn-sm">Reject</a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renegotiateModal" data-ad_request_id="{{ ad_request.id }}">Renegotiate</button>
+                            {% if ad_request.influencer_id not in flagged_user_ids %}
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#flagModal" data-influencer_id="{{ ad_request.influencer_id }}">Flag</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-center align-items-center pt-1">
+        <button type="button" class="btn btn-primary btn-custom-large" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+            Create Campaign
+        </button>
+    </div>
+    
+    <div class="modal fade" id="renegotiateModal" tabindex="-1" aria-labelledby="renegotiateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renegotiateModalLabel">Renegotiate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('renegotiate_post') }}" class="custom-form">
+                        <div>
+                            <input type="hidden" name="id" id="ad_request_id">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message">Message</label>
+                            <textarea name="message" id="message" class="form-control"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="requirements">Requirements</label>
+                            <textarea name="requirements" id="requirements" class="form-control"></textarea>
+                        </div>
+                        <div class="slider-container pt-3">
+                            <label for="payment_amount">Payment Amount</label>
+                            <input type="range" id="numberSlider" min="0" max="50000" value="0" step="500" oninput="updateNumberPicker('paymentSlider', this.value)">
+                            <input type="number" id="paymentSlider" name="payment_amount" value="0" min="0" max="50000" step="500" readonly>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createCampaignModal" tabindex="-1" aria-labelledby="createCampaignModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCampaignModalLabel">Create Campaign</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('create_campaign_post') }}">
+                        <div class="mb-3">
+                            <label for="campaign_name">Enter Campaign Name</label>
+                            <input type="text" name="campaign_name" class="form-control">
+                        </div>                
+                        <div class="mb-3">
+                            <label for="description">Enter Description</label>
+                            <input type="text" name="description" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="goals">Enter Goals for this campaign</label>
+                            <input type="textarea" name="goals" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="start_date">Enter starting date</label>
+                            <input type="date" name="start_date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date">Enter ending date</label>
+                            <input type="date" name="end_date" class="form-control">
+                        </div>
+                        <div class="slider-container pt-3">
+                            <label for="budget">Budget</label>
+                            <input type="range" id="numberSlider" min="0" max="50000" value="{{ budget }}" step="500" oninput="updateNumberPicker('budgetSlider', this.value)" style="background: #333;" >
+                            <input type="number" id="budgetSlider" name="budget" value="{{ budget }}" min="0" max="50000" step="500" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="niche">Choose a niche:</label>
+                            <select id="niche" name="niche" class="custom-select">
+                                <option value="" disabled selected>Select</option>
+                                {% for value in niche %}
+                                    <option value="{{ value }}">{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <fieldset class="mb-3">
+                            <legend>Visibility</legend>
+                            <div>
+                                <input type="radio" name="visibility" value="true" id="visibility_true"> 
+                                <label for="visibility_true">Public</label>
+                            </div>
+                            <div>
+                                <input type="radio" name="visibility" value="false" id="visibility_false">
+                                <label for="visibility_false">Private</label>
+                            </div>     
+                        </fieldset>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Create Campaign" class="btn btn-primary btn-sm">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="flagModal" tabindex="-1" aria-labelledby="flagModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flagModalLabel">Flag User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('flagged') }}" class="custom-form">
+                        <div>
+                            <input type="hidden" name="influencer_id" id="influencer_id">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason">State your reason</label>
+                            <textarea name="reason" id="reason" class="form-control"></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    setupModalEvent('renegotiateModal', ['ad_request_id']);
+    setupModalEvent('flagModal', ['influencer_id']);
+</script>         
+{% endblock %}

@@ -1,0 +1,38 @@
+<div class="container pt-5 mt-5">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="row">
+        {% for message in messages %}
+        {% if 'success' in message|lower %}
+            <div class="alert alert-success" role="alert">
+                {{message}}
+            </div>
+            {% else %}
+            <div class="alert alert-danger" role="alert">
+                {{message}}
+            </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+<style>
+    body {
+        background-color: #000; 
+    }
+    .container.mt-5 {
+        background: none;
+    }
+    .alert {
+        border-radius: 5px;
+        background-color: inherit;
+    }
+    .alert.alert-success {
+        background-color: #d4edda; 
+    }
+    .alert.alert-danger {
+        background-color: #f8d7da;
+    }
+</style>
